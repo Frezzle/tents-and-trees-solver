@@ -118,6 +118,17 @@ function newBoard(level) {
             }
 
             return none;
+        },
+        getUnknownCount: function() {
+            let count = 0;
+            this.cells.forEach(row => {
+                row.forEach(cell => {
+                    if (cell === unknown) {
+                        count++;
+                    }
+                });
+            });
+            return count;
         }
     };
 
@@ -128,27 +139,25 @@ function newBoard(level) {
     return board;
 }
 
+function applySolver(level, board, solver) {
+    let unknownsBefore = board.getUnknownCount();
+    solver(board, level);
+    let unknownsAfter = board.getUnknownCount();
+    let solved = unknownsBefore - unknownsAfter;
+    console.log(`${solver.name} applied: (${solved} cells solved, ${unknownsAfter} left)`);
+    console.log(getBoardAndLevelConsoleDisplay(board, level));
+}
+
 function solve(level) {
     let board = newBoard(level);
-
-    console.log("initial:")
+    
+    console.log(`initial: (${board.getUnknownCount()} unknowns)`)
     console.log(getBoardAndLevelConsoleDisplay(board, level));
 
-    solveZeroes(board, level);
-    console.log("zeroes solver applied:")
-    console.log(getBoardAndLevelConsoleDisplay(board, level));
-
-    solveOpenSeas(board);
-    console.log("open seas solver applied:")
-    console.log(getBoardAndLevelConsoleDisplay(board, level));
-
-    solvePerfectRemainingRows(board, level);
-    console.log("perfect remaining rows solver applied:")
-    console.log(getBoardAndLevelConsoleDisplay(board, level));
-
-    solvePerfectRemainingColumns(board, level);
-    console.log("perfect remaining columns solver applied:")
-    console.log(getBoardAndLevelConsoleDisplay(board, level));
+    applySolver(level, board, solveZeroes);
+    applySolver(level, board, solveOpenSeas);
+    applySolver(level, board, solvePerfectRemainingRows);
+    applySolver(level, board, solvePerfectRemainingColumns);
 }
 
 function getBoardAndLevelConsoleDisplay(board, level) {
@@ -165,17 +174,6 @@ function getBoardAndLevelConsoleDisplay(board, level) {
 
     return str;
 }
-
-// function printBoard(board) {
-//     let str = ''
-//     board.cells.forEach(row => {
-//         row.forEach(cell => {
-//             str += cell + ' ';
-//         })
-//         str += '\n';
-//     });
-//     console.log(str);
-// }
 
 function getBoardConsoleDisplay(board, level) {
     let str = '  ';
@@ -241,11 +239,9 @@ function solveZeroes(board, level) {
             }
         }
     });
-
-    return board;
 }
 
-function solveOpenSeas(board) {
+function solveOpenSeas(board, level) {
     for (let y = 0; y < board.cells.length; y++) {
         for (let x = 0; x < board.cells[y].length; x++) {
             if (board.cells[x][y] !== unknown) {
