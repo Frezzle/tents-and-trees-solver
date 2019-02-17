@@ -135,18 +135,20 @@ function solve(level) {
     console.log(getBoardAndLevelConsoleDisplay(board, level));
 
     solveZeroes(board, level);
-    console.log("zeroes solved:")
+    console.log("zeroes solver applied:")
     console.log(getBoardAndLevelConsoleDisplay(board, level));
 
     solveOpenSeas(board);
-    console.log("open seas solved:")
+    console.log("open seas solver applied:")
     console.log(getBoardAndLevelConsoleDisplay(board, level));
 
     solvePerfectRemainingRows(board, level);
-    console.log("perfect remaining rows solved:")
+    console.log("perfect remaining rows solver applied:")
     console.log(getBoardAndLevelConsoleDisplay(board, level));
-    
-    console.log(board);
+
+    solvePerfectRemainingColumns(board, level);
+    console.log("perfect remaining columns solver applied:")
+    console.log(getBoardAndLevelConsoleDisplay(board, level));
 }
 
 function getBoardAndLevelConsoleDisplay(board, level) {
@@ -263,15 +265,51 @@ function solveOpenSeas(board) {
 function solvePerfectRemainingRows(board, level) {
     level.rows.forEach((row, rowIndex) => {
         let unknownCount = 0;
+        let pirateCount = 0;
         board.cells[rowIndex].forEach(cell => {
             if (cell === unknown) {
                 unknownCount++;
+            } else if (cell === pirate) {
+                pirateCount++;
             }
         });
-        if (row === unknownCount) {
+        if (row === unknownCount + pirateCount) {
             board.cells[rowIndex].forEach((cell, columnIndex) => {
                 if (cell === unknown) {
                     board.setxy(rowIndex, columnIndex, pirate);
+                }
+            });
+        } else if (row === pirateCount && unknownCount > 0) {
+            board.cells[rowIndex].forEach((cell, columnIndex) => {
+                if (cell === unknown) {
+                    board.setxy(rowIndex, columnIndex, sea);
+                }
+            });
+        }
+    });
+}
+
+function solvePerfectRemainingColumns(board, level) {
+    level.columns.forEach((column, columnIndex) => {
+        let unknownCount = 0;
+        let pirateCount = 0;
+        level.rows.forEach((row, rowIndex) => {
+            if (board.cells[rowIndex][columnIndex] === unknown) {
+                unknownCount++;
+            } else if (board.cells[rowIndex][columnIndex] === pirate) {
+                pirateCount++;
+            }
+        });
+        if (column === unknownCount + pirateCount) {
+            level.rows.forEach((row, rowIndex) => {
+                if (board.cells[rowIndex][columnIndex] === unknown) {
+                    board.setxy(rowIndex, columnIndex, pirate);
+                }
+            });
+        } else if (column === pirateCount && unknownCount > 0) {
+            level.rows.forEach((row, rowIndex) => {
+                if (board.cells[rowIndex][columnIndex] === unknown) {
+                    board.setxy(rowIndex, columnIndex, sea);
                 }
             });
         }
