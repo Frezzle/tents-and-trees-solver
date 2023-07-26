@@ -317,4 +317,4 @@ function solve(level) {
   }
 }
 
-solve(levels[4]);
+solve(levels[3]);
